@@ -42,18 +42,20 @@ def analyze_image():
     with open(filepath, "rb") as img_file:
         image_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "user", "content": [
-                {"type": "text", "text": "Please analyze this shrimp for gut health, color, and visible diseases."},
-                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
-            ]}
-        ],
-        max_tokens=500
-    )
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    analysis = response['choices'][0]['message']['content']
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "user", "content": [
+            {"type": "text", "text": "Analyze this shrimp for gut health, color, and visible diseases."},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
+        ]}
+    ],
+    max_tokens=500
+)
+analysis = response.choices[0].message.content
+
 
     # Send WhatsApp
     client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
